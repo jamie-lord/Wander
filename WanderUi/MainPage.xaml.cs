@@ -141,6 +141,12 @@ namespace WanderUi
                     }
                 };
             }
+            else if (element.NodeName is "NOSCRIPT" or
+                "SCRIPT" or
+                "BR")
+            {
+                // Not currently showing these elements in the UI.
+            }
             else
             {
                 view = new Label()
@@ -150,7 +156,10 @@ namespace WanderUi
                 };
             }
 
-            parent.Add(view);
+            if (view != null)
+            {
+                parent.Add(view);
+            }
         }
 
         private static double GetFontSize(string nodeName)
