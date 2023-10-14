@@ -6,6 +6,9 @@ namespace WanderUi
 {
     public partial class MainPage : ContentPage
     {
+        private const bool ShowContainerElements = false;
+        private const bool ShowElementNames = false;
+
         public MainPage()
         {
             InitializeComponent();
@@ -68,13 +71,15 @@ namespace WanderUi
             {
                 if (element.Children.Length > 0)
                 {
-                    view = new VerticalStackLayout
+                    view = new VerticalStackLayout();
+
+                    if (ShowContainerElements)
                     {
-                        new Label()
+                        ((VerticalStackLayout)view).Add(new Label()
                         {
                             Text = element.NodeName
-                        }
-                    };
+                        });
+                    }
 
                     foreach (var child in element.Children)
                     {
@@ -85,7 +90,8 @@ namespace WanderUi
                 {
                     view = new Label()
                     {
-                        Text = element.NodeName + "\t" + element.TextContent.Trim()
+                        Text = (ShowElementNames ? element.NodeName + "\t" : "") + element.TextContent.Trim(),
+                        FontSize = GetFontSize(element.NodeName),
                     };
                 }
             }
@@ -93,9 +99,10 @@ namespace WanderUi
             {
                 view = new Label()
                 {
-                    Text = element.NodeName + "\t" + element.TextContent.Trim(),
+                    Text = (ShowElementNames ? element.NodeName + "\t" : "") + element.TextContent.Trim(),
                     TextDecorations = TextDecorations.Underline,
-                    TextColor = Colors.Blue
+                    TextColor = Colors.Blue,
+                    FontSize = GetFontSize(element.NodeName)
                 };
                 if (element.HasAttribute("href"))
                 {
@@ -125,11 +132,27 @@ namespace WanderUi
                 view = new Label()
                 {
                     Text = element.NodeName + "\t" + element.NodeType.ToString(),
-                    TextColor = Colors.Red
+                    TextColor = Colors.Black,
+                    BackgroundColor = Colors.Red
                 };
             }
 
             parent.Add(view);
+        }
+
+        private static double GetFontSize(string nodeName)
+        {
+            const double standardFontSize = 16;
+            return nodeName switch
+            {
+                "H1" => standardFontSize * 3,
+                "H2" => standardFontSize * 2.8,
+                "H3" => standardFontSize * 2.6,
+                "H4" => standardFontSize * 2.4,
+                "H5" => standardFontSize * 2.2,
+                "H6" => standardFontSize * 2,
+                _ => standardFontSize,
+            };
         }
     }
 }
