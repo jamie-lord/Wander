@@ -1,6 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Html.Dom;
 using AngleSharp.Io;
+using System.Text;
 
 namespace WanderUi
 {
@@ -81,16 +82,27 @@ namespace WanderUi
                         });
                     }
 
-                    foreach (var child in element.Children)
+                    foreach (var childNode in element.ChildNodes)
                     {
-                        CreateComponent(child, (VerticalStackLayout)view);
+                        if (childNode.NodeType == AngleSharp.Dom.NodeType.Element)
+                        {
+                            CreateComponent((AngleSharp.Dom.IElement)childNode, (VerticalStackLayout)view);
+                        }
+                        else if (childNode.NodeType == AngleSharp.Dom.NodeType.Text && !string.IsNullOrWhiteSpace(ExceptBlanks(childNode.TextContent).Trim()))
+                        {
+                            ((VerticalStackLayout)view).Add(new Label()
+                            {
+                                Text = (ShowElementNames ? childNode.NodeName + "\t" : "") + ExceptBlanks(childNode.TextContent).Trim(),
+                                FontSize = GetFontSize(childNode.NodeName),
+                            });
+                        }
                     }
                 }
-                else if (!string.IsNullOrWhiteSpace(element.TextContent))
+                else if (!string.IsNullOrWhiteSpace(ExceptBlanks(element.TextContent).Trim()))
                 {
                     view = new Label()
                     {
-                        Text = (ShowElementNames ? element.NodeName + "\t" : "") + element.TextContent.Trim(),
+                        Text = (ShowElementNames ? element.NodeName + "\t" : "") + ExceptBlanks(element.TextContent).Trim(),
                         FontSize = GetFontSize(element.NodeName),
                     };
                 }
@@ -99,7 +111,7 @@ namespace WanderUi
             {
                 view = new Label()
                 {
-                    Text = (ShowElementNames ? element.NodeName + "\t" : "") + element.TextContent.Trim(),
+                    Text = (ShowElementNames ? element.NodeName + "\t" : "") + ExceptBlanks(element.TextContent).Trim(),
                     TextDecorations = TextDecorations.Underline,
                     TextColor = Colors.Blue,
                     FontSize = GetFontSize(element.NodeName)
@@ -132,8 +144,7 @@ namespace WanderUi
                 view = new Label()
                 {
                     Text = element.NodeName + "\t" + element.NodeType.ToString(),
-                    TextColor = Colors.Black,
-                    BackgroundColor = Colors.Red
+                    TextColor = Colors.Red
                 };
             }
 
@@ -153,6 +164,26 @@ namespace WanderUi
                 "H6" => standardFontSize * 2,
                 _ => standardFontSize,
             };
+        }
+
+        private static string ExceptBlanks(string str)
+        {
+            StringBuilder sb = new(str.Length);
+            for (int i = 0; i < str.Length; i++)
+            {
+                char c = str[i];
+                switch (c)
+                {
+                    case '\r':
+                    case '\n':
+                    case '\t':
+                        continue;
+                    default:
+                        sb.Append(c);
+                        break;
+                }
+            }
+            return sb.ToString();
         }
     }
 }
