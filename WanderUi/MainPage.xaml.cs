@@ -1,4 +1,5 @@
 ﻿using AngleSharp;
+using AngleSharp.Html.Dom;
 using AngleSharp.Io;
 
 namespace WanderUi
@@ -12,18 +13,28 @@ namespace WanderUi
 
         private async void UriEntry_Completed(object sender, EventArgs e)
         {
+            await Browse(((Entry)sender).Text);
+        }
+
+        private async Task Browse(string address)
+        {
             var requester = new DefaultHttpRequester();
             requester.Headers["User-Agent"] = "Wander/0.1";
             var config = Configuration.Default.With(requester).WithDefaultLoader();
-            var address = ((Entry)sender).Text;
             if (!address.StartsWith("https://") && !address.StartsWith("http://"))
             {
                 address = "http://" + address;
             }
-            var context = BrowsingContext.New(config);
-            var document = await context.OpenAsync(address);
+
+            if (UriEntry.Text != address)
+            {
+                UriEntry.Text = address;
+            }
 
             verticalStackLayout.Children.Clear();
+
+            var context = BrowsingContext.New(config);
+            var document = await context.OpenAsync(address);
 
             foreach (var child in document.Body.Children)
             {
@@ -37,6 +48,7 @@ namespace WanderUi
             if (element.NodeName is "DIV" or
                 "HEADER" or
                 "MAIN" or
+                "ARTICLE" or
                 "SECTION" or
                 "ASIDE" or
                 "NAV" or
@@ -76,13 +88,30 @@ namespace WanderUi
                 "H5" or
                 "H6" or
                 "P" or
-                "A" or
                 "SPAN")
             {
                 view = new Label()
                 {
                     Text = element.NodeName + "\t" + element.TextContent.Trim()
                 };
+            }
+            else if (element.NodeName == "A")
+            {
+                view = new Label()
+                {
+                    Text = element.NodeName + "\t" + element.TextContent.Trim(),
+                    TextDecorations = TextDecorations.Underline,
+                    TextColor = Colors.Blue
+                };
+                if (element.HasAttribute("href"))
+                {
+                    ((Label)view).GestureRecognizers.Add(
+                    new TapGestureRecognizer()
+                    {
+                        Command = new Command(async () => await Browse(((IHtmlAnchorElement)element).Href))
+                    });
+                }
+
             }
             else if (element.NodeName == "IMG")
             {
