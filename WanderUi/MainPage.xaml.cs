@@ -68,7 +68,9 @@ namespace WanderUi
                 "H5" or
                 "H6" or
                 "P" or
-                "SPAN")
+                "SPAN" or
+                "PICTURE" or
+                "TIME")
             {
                 if (element.Children.Length > 0)
                 {
