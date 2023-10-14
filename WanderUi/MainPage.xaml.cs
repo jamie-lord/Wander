@@ -68,6 +68,9 @@ namespace WanderUi
                 "H5" or
                 "H6" or
                 "P" or
+                "I" or
+                "B" or
+                "EM" or
                 "SPAN" or
                 "PICTURE" or
                 "TIME")
