@@ -56,9 +56,17 @@ namespace WanderUi
                 "OL" or
                 "LI" or
                 "FIGURE" or
-                "FOOTER")
+                "FOOTER" or
+                "H1" or
+                "H2" or
+                "H3" or
+                "H4" or
+                "H5" or
+                "H6" or
+                "P" or
+                "SPAN")
             {
-                if (element.HasChildNodes)
+                if (element.Children.Length > 0)
                 {
                     view = new VerticalStackLayout
                     {
@@ -81,21 +89,7 @@ namespace WanderUi
                     };
                 }
             }
-            else if (element.NodeName is "H1" or
-                "H2" or
-                "H3" or
-                "H4" or
-                "H5" or
-                "H6" or
-                "P" or
-                "SPAN")
-            {
-                view = new Label()
-                {
-                    Text = element.NodeName + "\t" + element.TextContent.Trim()
-                };
-            }
-            else if (element.NodeName == "A")
+            else if (element.NodeName is "A" or "AREA" or "LINK")
             {
                 view = new Label()
                 {
@@ -138,5 +132,4 @@ namespace WanderUi
             parent.Add(view);
         }
     }
-
 }
