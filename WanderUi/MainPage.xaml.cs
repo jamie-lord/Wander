@@ -49,6 +49,7 @@ namespace WanderUi
         private void CreateComponent(AngleSharp.Dom.IElement element, Microsoft.Maui.ILayout parent)
         {
             IView view = null;
+            // Block level elements.
             if (element.NodeName is "DIV" or
                 "HEADER" or
                 "MAIN" or
@@ -112,6 +113,7 @@ namespace WanderUi
                     };
                 }
             }
+            // Inline elements.
             else if (element.NodeName is "A" or "AREA" or "LINK")
             {
                 view = new Label()
@@ -131,6 +133,7 @@ namespace WanderUi
                 }
 
             }
+            // Image and object elements.
             else if (element.NodeName == "IMG")
             {
                 view = new VerticalStackLayout() {
@@ -144,12 +147,14 @@ namespace WanderUi
                     }
                 };
             }
+            // Elements to ignore.
             else if (element.NodeName is "NOSCRIPT" or
                 "SCRIPT" or
                 "BR")
             {
                 // Not currently showing these elements in the UI.
             }
+            // Unknown elements.
             else
             {
                 view = new Label()
